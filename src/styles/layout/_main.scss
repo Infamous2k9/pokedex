@@ -10,16 +10,20 @@ body{
     flex-grow: 1;
     color: $dark-900;
     background-color: $dark-100;
-    padding: 8px;
+    
 }
 
 .pokemon-list{
-    max-height: 80vh;
+    max-height: 75vh;
     overflow: scroll;
+    padding: 16px 0;
 }
 
 .load-more-btn{
     max-width: fit-content;
-    padding: 8px 16px;
-    margin: 0 auto;
+    padding: 8px 24px;
+    margin: 24px auto;
+    border-radius: 16px;
+    background-color: $red-500;
 }
+

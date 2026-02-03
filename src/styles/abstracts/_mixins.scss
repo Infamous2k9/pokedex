@@ -1,7 +1,33 @@
+@use "sass:map";
+@use "sass:color";
+@use "../base/colors" as *;
+
 @mixin flex( $flex-direction: row, $flex-wrap: wrap, $justify-content: flex-start, $align-items: stretch) {
     display: flex;
     flex-direction: $flex-direction;
     flex-wrap: $flex-wrap;
     justify-content: $justify-content;
     align-items: $align-items;
+}
+
+@mixin pokemon-card-gradients($types) {
+  @each $name, $color in $types {
+    .card.type-#{$name} {
+      background-image: linear-gradient(
+        135deg,
+        color.adjust($color, $lightness: 14%),
+        $color,
+        color.adjust($color, $lightness: -8%)
+      );
+    }
+  }
+}
+
+
+@mixin pokemon-type-classes($types) {
+  @each $name, $color in $types {
+    .type-#{$name} {
+      background-color: $color;
+    }
+  }
 }

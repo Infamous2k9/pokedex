@@ -1,0 +1,72 @@
+@use "../abstracts/mixins" as *;
+@use "../base/colors" as *;
+@use "../abstracts/functions" as *;
+
+
+.card {
+    
+    padding: 16px;
+    border: 6px solid $dark-400;
+    border-radius: 16px;
+    margin: 16px 8px;
+    background-size: 200% 200%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    @include flex($flex-direction: column);
+
+    &:hover{
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        cursor: pointer;
+    }
+
+    &__header{
+        @include flex($justify-content: space-between);
+        padding: 16px 8px;
+        font-size: 21px;
+        font-weight: 900;
+        
+
+        & > h1{
+            text-transform: capitalize;
+        }
+    }
+
+    &__image {
+        width: 100%;
+        max-width: 140px;
+        margin: 0 auto 8px;
+        display: block;
+
+        filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.45));
+        transition: transform 0.2s ease, filter 0.2s ease;
+
+        &:hover{  
+            transform: scale(1.08);
+            filter:
+                drop-shadow(0 12px 20px rgba(0, 0, 0, 0.45))
+                drop-shadow(0 0 22px rgba(255, 255, 255, 0.65));
+            }
+    }
+
+    &__types{
+        display: flex;
+        gap: 6px;
+        margin-top: 24px;
+    }
+}
+
+
+.chip {
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: $dark-400 solid 1px;
+  font-size: 14px;
+  font-weight: 600;
+  color: $dark-900;
+  background: #666;
+  text-transform: capitalize;
+}
+
+@include pokemon-card-gradients($types);
+
+@include pokemon-type-classes($types);
