@@ -1,0 +1,12 @@
+@use "../base/colors" as *;
+@use "../abstracts/mixins" as *;
+body{
+    @include flex($flex-direction: column, $flex-wrap: nowrap)
+}
+
+
+main{
+    flex-grow: 1;
+    color: $dark-900;
+    background-color: $dark-100;
+}

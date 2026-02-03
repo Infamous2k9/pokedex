@@ -1,0 +1,36 @@
+@use "../abstracts/" as *;
+@use "../base/colors" as *;
+
+header{
+    max-height: 100px;
+    padding: 16px 16px;
+    background-color: $dark-100;
+    border-bottom: 2px solid $dark-400;
+
+    @include flex($flex-wrap: nowrap, $justify-content: space-between, $align-items: center);
+}
+
+.search-bar{
+    @include flex($flex-wrap: nowrap, $justify-content: center, $align-items: center);
+    gap: 4px;
+
+    &__input{
+        border: none;
+        border-bottom: 1px solid $dark-400;
+        color: $dark-900;
+        background-color: transparent;
+    }
+    &__submit{
+        height: 32px;
+        width: 32px;
+
+        stroke: white;
+        fill: white;
+    }
+}
+
+
+#pokeball {
+    height: 50px;
+    width: 50px;
+}

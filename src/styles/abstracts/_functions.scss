@@ -1,0 +1,5 @@
+@use "sass:map";
+
+@function type-color($type) {
+  @return map.get($types, $type);
+}

@@ -1,0 +1,9 @@
+@use "../base/colors" as *;
+
+footer{
+    background-color: $dark-100;
+    border-top: 2px solid $dark-400;
+    text-align: center;
+    padding: 16px;
+    color: $dark-900;
+}
