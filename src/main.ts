@@ -1,6 +1,10 @@
+import { pokedexList } from "./components/pokemon-list";
 import "./styles/styles.scss";
 
+
+
+
 function init() {
-    console.log("lebe")
+    pokedexList.init()
 }
 init()
