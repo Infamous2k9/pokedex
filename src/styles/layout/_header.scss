@@ -8,6 +8,11 @@ header{
     border-bottom: 2px solid $dark-400;
 
     @include flex($flex-wrap: nowrap, $justify-content: space-between, $align-items: center);
+
+    @include breakpoint(big){
+    padding-left: calc((100% - 1440px) / 2);
+    padding-right: calc((100% - 1440px) / 2);
+  }
 }
 
 .search-bar{
@@ -16,16 +21,26 @@ header{
 
     &__input{
         border: none;
-        border-bottom: 1px solid $dark-400;
+        border-bottom: 1px solid $dark-700;
         color: $dark-900;
         background-color: transparent;
+
+        &:hover{
+            cursor: pointer;
+        }
+
+        &:focus{
+            outline: none;
+        }
     }
+
+
     &__submit{
         height: 32px;
         width: 32px;
 
-        stroke: white;
-        fill: white;
+        stroke: $dark-900;
+        fill: $dark-900;
     }
 }
 

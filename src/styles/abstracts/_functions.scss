@@ -1,7 +1,12 @@
 @use "sass:map";
 @use "../base/colors" as *;
+@use "./variables" as *;
 
 @function type-color($type) {
   @return map.get($types, $type);
+}
+
+@function get-min-width($breakpoint) {
+    @return map.get($breakpoints, $breakpoint);
 }
 

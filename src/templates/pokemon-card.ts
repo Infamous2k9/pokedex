@@ -11,11 +11,12 @@ export function getCardTemplate (data: PokemonModel){
 
   return `
     <article class="card type-${mainType}">
+
+      <img class="card__image" src="${data.getImg()}" alt="${data.getName()} image">
       <div class="card__header">
         <p>#${data.getId()}</p>
         <h1>${data.getName()}</h1>
       </div>
-      <img class="card__image" src="${data.getImg()}" alt="${data.getName()} image">
       <div class="card__types">
         ${typesHTML}
       </div>

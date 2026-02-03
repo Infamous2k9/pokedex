@@ -1,7 +1,8 @@
 @use "../base/colors" as *;
 @use "../abstracts/mixins" as *;
 body{
-    @include flex($flex-direction: column, $flex-wrap: nowrap)
+    @include flex($flex-direction: column, $flex-wrap: nowrap);
+
 }
 
 
@@ -10,13 +11,19 @@ body{
     flex-grow: 1;
     color: $dark-900;
     background-color: $dark-100;
+
+    @include breakpoint(big){
+    padding-left: calc((100% - 1440px) / 2);
+    padding-right: calc((100% - 1440px) / 2);
+  }
     
 }
 
 .pokemon-list{
-    max-height: 75vh;
+    max-height: 75dvh;
     overflow: scroll;
     padding: 16px 0;
+    @include flex($justify-content: space-evenly);
 }
 
 .load-more-btn{
