@@ -3,19 +3,19 @@ import { getTypesTemplate } from "./pokemon-type";
 
 export function getCardTemplate (data: PokemonModel){
   let typesHTML = ""
-  const mainType = data.getTypes()[0]
+  const mainType = data.types[0]
   
-  for (const type of data.getTypes()) {
+  for (const type of data.types) {
     typesHTML += getTypesTemplate(type)
   }  
 
   return `
-    <article class="card type-${mainType}" data-pokemon-id="${data.getId()}">
+    <article class="card type--${mainType}" data-pokemon-id="${data.id}">
 
-      <img class="card__image" src="${data.getImg()}" alt="${data.getName()} image">
+      <img class="card__image" src="${data.img}" alt="${data.name} image">
       <div class="card__header">
-        <p>#${data.getId()}</p>
-        <h1>${data.getName()}</h1>
+        <p>#${data.id}</p>
+        <h1>${data.name}</h1>
       </div>
       <div class="card__types">
         ${typesHTML}
