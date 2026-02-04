@@ -10,7 +10,7 @@ export function getCardTemplate (data: PokemonModel){
   }  
 
   return `
-    <article class="card type-${mainType}">
+    <article class="card type-${mainType}" data-pokemon-id="${data.getId()}">
 
       <img class="card__image" src="${data.getImg()}" alt="${data.getName()} image">
       <div class="card__header">

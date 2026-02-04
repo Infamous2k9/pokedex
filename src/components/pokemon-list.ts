@@ -2,7 +2,6 @@ import { getNextPokemonData } from "../api/pokedex.api"
 import { getPokemonData } from "../api/pokemon.api"
 import { PokemonModel } from "../models/pokemon.model"
 import { getCardTemplate } from "../templates/pokemon-card"
-import { getTypesTemplate } from "../templates/pokemon-type"
 
 
 export const pokedexList = {
@@ -36,42 +35,61 @@ export const pokedexList = {
     },
 
     addEventTrigger(){
+        //PokemonCards Trigger
+        const pokemonIdListRef = document.querySelectorAll<HTMLElement>('*[data-pokemon-id]')
+        for (const element of pokemonIdListRef) {
+            element.addEventListener("click", () =>{
+                const cardId =  element.getAttribute("data-pokemon-id")
+                this.loadPokemonDetails(Number(cardId))
+            })
+        }
+        //Load More Btn
         const loadBtn = document.querySelector<HTMLButtonElement>('[data-load-more]')
-        
         loadBtn?.addEventListener("click", ()=>{
             console.log("next");
             this.addNextPokemon()
         })
     },
+
     async addNextPokemon() {
+
     if (this.vars.isLoading) return
     this.vars.isLoading = true
 
     let jsonData = await getNextPokemonData(this.vars.offset, this.vars.limit)
+    const newPokemon = []
 
     for (const element of jsonData.results) {
         let pokemonJson = await getPokemonData(element.url)
-
-        let pokemonData = {
-        id: pokemonJson.id,
-        name: pokemonJson.name,
-        img: pokemonJson.sprites.other.dream_world.front_default,
-        types: pokemonJson.types.map((t: any) => t.type.name),
-        stats: pokemonJson.stats.map((n: any) => ({
-            baseStat: n.base_stat,
-            name: n.stat.name
-        })),
-        weight: pokemonJson.weight,
-        height: pokemonJson.height
-        }
-
-        this.vars.allPokemon.push(pokemonData)
+        newPokemon.push(this.mapPokemon(pokemonJson))
     }
-
+    
+    this.vars.allPokemon.push(...newPokemon)
     this.vars.offset += this.vars.limit
     this.buildCard()
     this.addEventTrigger()
     this.vars.isLoading = false
+    },
+
+    loadPokemonDetails(id: number){
+        console.log(id);
+        
+    },
+
+    mapPokemon(dataJson: any){
+        let pokemonData = {
+        id: dataJson.id,
+        name: dataJson.name,
+        img: dataJson.sprites.other.dream_world.front_default,
+        types: dataJson.types.map((t: any) => t.type.name),
+        stats: dataJson.stats.map((n: any) => ({
+            baseStat: n.base_stat,
+            name: n.stat.name
+        })),
+        weight: dataJson.weight,
+        height: dataJson.height
+        }
+        return pokemonData
     }
 
 }
