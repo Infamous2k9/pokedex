@@ -20,7 +20,7 @@
 
 @mixin pokemon-card-gradients($types) {
   @each $name, $color in $types {
-    .card.type-#{$name} {
+    .card.type--#{$name} {
       background-image: linear-gradient(
         135deg,
         color.adjust($color, $lightness: 4%),
@@ -34,7 +34,7 @@
 
 @mixin pokemon-type-classes($types) {
   @each $name, $color in $types {
-    .type-#{$name} {
+    .type--#{$name} {
       background-color: $color;
     }
   }
