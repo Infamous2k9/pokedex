@@ -9,11 +9,56 @@ export const pokedexList = {
         limit : 20,
         isLoading : false,
         allPokemon: [] as PokemonModel[],
+        filteredPokemon: [] as PokemonModel[]
     },
     
     init(){
+        this.addSearchListener()
         this.addNextPokemon()
     },
+
+    addSearchListener() {
+        const searchInput = document.querySelector<HTMLInputElement>('[data-pokemon-search]')
+
+        if (!searchInput) return
+
+        searchInput.addEventListener("input", (e) => {
+            if (!(e.target instanceof HTMLInputElement)) return
+            const value = e.target.value.toLowerCase().trim()
+
+            if (value === "") {
+                this.vars.filteredPokemon = this.vars.allPokemon
+            } else {
+                this.vars.filteredPokemon = this.vars.allPokemon.filter(p => p.name.includes(value))
+            }
+
+            this.renderFiltered()
+        })
+    },
+
+    renderFiltered() {
+        const pokemonListRef = document.querySelector<HTMLDivElement>('[data-pokemon-list]')
+        if (!pokemonListRef) return
+
+        pokemonListRef.innerHTML = ""
+
+
+        if (this.vars.filteredPokemon.length === 0) {
+            pokemonListRef.innerHTML = `
+            <p class="no-results">
+                Kein Pokémon gefunden
+            </p>
+            `
+            return
+        }
+
+        let html = ""
+        for (const element of this.vars.filteredPokemon) {
+            html += getCardTemplate(element)
+        }
+
+        pokemonListRef.innerHTML = html
+    },       
 
     buildCard() {
         const pokemonListRef = document.querySelector<HTMLDivElement>('[data-pokemon-list]')
@@ -53,16 +98,18 @@ export const pokedexList = {
     async addNextPokemon() {
         if (this.vars.isLoading) return
         this.vars.isLoading = true
-
+        //fetch all pokemon as json
         let pokemonsfetchData = await getNextPokemonData(this.vars.offset, this.vars.limit)
+
+        //convert json to pokemon model
         const newPokemon:PokemonModel[] = []
-        
         for (const element of pokemonsfetchData.results) {
             let pokemonJson = await getPokemonData(element.url)
             newPokemon.push(new PokemonModel(pokemonJson))
         }
         
         this.vars.allPokemon.push(...newPokemon)
+        this.vars.filteredPokemon = this.vars.allPokemon
         this.vars.offset += this.vars.limit
         this.buildCard()
         this.addEventTrigger()
@@ -70,6 +117,14 @@ export const pokedexList = {
     },
 
     loadPokemonDetails(id: number){
+        let selectedPokemon
+        
+        for (const pokemon of this.vars.allPokemon) {
+            if(pokemon.id == id){                
+                selectedPokemon = pokemon
+            }
+        }
         console.log(id);
+        console.log(selectedPokemon);
     },
 }

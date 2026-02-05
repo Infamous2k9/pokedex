@@ -21,7 +21,7 @@ body{
 
 .pokemon-list{
     max-height: 75dvh;
-    overflow: scroll;
+    overflow-y: scroll;
     padding: 16px 0;
     @include flex($justify-content: space-evenly);
 }
@@ -32,5 +32,11 @@ body{
     margin: 24px auto;
     border-radius: 16px;
     background-color: $red-500;
+}
+
+.no-results{
+    font-size: 32px;
+    font-weight: 600;
+    margin-top: 15dvh;
 }
 
