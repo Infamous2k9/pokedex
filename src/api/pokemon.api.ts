@@ -15,3 +15,13 @@ export async function getPokemonData(url: string) {
         throw error
     }
 }
+
+export async function getPokemonDataByName(name: string) {
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
+
+  if (!res.ok) {
+    throw new Error("Pokemon not found")
+  }
+
+  return res.json()
+}

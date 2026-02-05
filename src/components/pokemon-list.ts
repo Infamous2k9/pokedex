@@ -1,5 +1,5 @@
 import { getNextPokemonData } from "../api/pokedex.api"
-import { getPokemonData } from "../api/pokemon.api"
+import { getPokemonData, getPokemonDataByName } from "../api/pokemon.api"
 import { PokemonModel } from "../models/pokemon.model"
 import { getCardTemplate } from "../templates/pokemon-card"
 
@@ -17,24 +17,55 @@ export const pokedexList = {
         this.addNextPokemon()
     },
 
-    addSearchListener() {
+     addSearchListener() {
         const searchInput = document.querySelector<HTMLInputElement>('[data-pokemon-search]')
 
         if (!searchInput) return
 
-        searchInput.addEventListener("input", (e) => {
+        searchInput.addEventListener("input", async (e) => {
             if (!(e.target instanceof HTMLInputElement)) return
             const value = e.target.value.toLowerCase().trim()
 
-            if (value === "") {
-                this.vars.filteredPokemon = this.vars.allPokemon
-            } else {
-                this.vars.filteredPokemon = this.vars.allPokemon.filter(p => p.name.includes(value))
+            // if (value === "") {
+            //     this.vars.filteredPokemon = this.vars.allPokemon
+            // } else {
+            //     this.vars.filteredPokemon = this.vars.allPokemon.filter(p => p.name.includes(value))
+            // }
+
+            // lokal filtern
+            this.vars.filteredPokemon = this.vars.allPokemon.filter(p =>
+            p.name.includes(value)
+            )
+
+            // nichts gefunden → API-Call
+            if (this.vars.filteredPokemon.length === 0 && value !== "") {
+                await this.searchPokemonFromApi(value)
             }
 
             this.renderFiltered()
         })
     },
+
+    async searchPokemonFromApi(name: string) {
+        // Cache?
+        const exists = this.vars.allPokemon.some(p => p.name === name)
+        if (exists) return
+
+        try {
+            const pokemonJson = await getPokemonDataByName(name)
+
+            const pokemonData = new PokemonModel(pokemonJson)
+
+            // Caching
+            this.vars.allPokemon.push(pokemonData)
+            this.vars.filteredPokemon = [pokemonData]
+
+        } catch (err) {
+            // wirklich nicht gefunden
+            this.vars.filteredPokemon = []
+        }
+    },
+
 
     renderFiltered() {
         const pokemonListRef = document.querySelector<HTMLDivElement>('[data-pokemon-list]')
