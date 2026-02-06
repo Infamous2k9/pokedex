@@ -27,10 +27,7 @@ export class PokemonModel implements Pokemon {
     get speciesURL(): string{
         return this.data.species.url
     }
-    get stats(): [{}]{
-        return this.data.statsmap((e: any) => ({
-            baseStat: e.base_stat,
-            name: e.stat.name
-        }))
+    get stats(): any{
+        return this.data.stats
     }
 }

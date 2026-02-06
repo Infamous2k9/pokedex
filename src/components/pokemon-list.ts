@@ -2,6 +2,8 @@ import { getNextPokemonData } from "../api/pokedex.api"
 import { getPokemonData, getPokemonDataByName } from "../api/pokemon.api"
 import { PokemonModel } from "../models/pokemon.model"
 import { getCardTemplate } from "../templates/pokemon-card"
+import { getDetailsTemplate } from "../templates/pokemon-details"
+
 
 export const pokedexList = {
     vars: {
@@ -18,30 +20,23 @@ export const pokedexList = {
     },
 
      addSearchListener() {
-        const searchInput = document.querySelector<HTMLInputElement>('[data-pokemon-search]')
-
+        const searchInput = document.querySelector<HTMLInputElement>('[data-pokemon-search]') 
         if (!searchInput) return
-
+        
         searchInput.addEventListener("input", async (e) => {
             if (!(e.target instanceof HTMLInputElement)) return
             const value = e.target.value.toLowerCase().trim()
-
-            // if (value === "") {
-            //     this.vars.filteredPokemon = this.vars.allPokemon
-            // } else {
-            //     this.vars.filteredPokemon = this.vars.allPokemon.filter(p => p.name.includes(value))
-            // }
-
-            // lokal filtern
-            this.vars.filteredPokemon = this.vars.allPokemon.filter(p =>
-            p.name.includes(value)
-            )
-
-            // nichts gefunden → API-Call
-            if (this.vars.filteredPokemon.length === 0 && value !== "") {
-                await this.searchPokemonFromApi(value)
-            }
-
+            
+                // lokal filter
+                this.vars.filteredPokemon = this.vars.allPokemon.filter(p =>
+                p.name.includes(value)
+                )
+    
+                // not found → API-Call
+                if (this.vars.filteredPokemon.length === 0 && value !== "") {
+                    await this.searchPokemonFromApi(value)
+                }
+                
             this.renderFiltered()
         })
     },
@@ -57,11 +52,12 @@ export const pokedexList = {
             const pokemonData = new PokemonModel(pokemonJson)
 
             // Caching
-            this.vars.allPokemon.push(pokemonData)
-            this.vars.filteredPokemon = [pokemonData]
+            // this.vars.allPokemon.push(pokemonData)
+            // this.vars.allPokemon.sort((a,b) => a.id - b.id)    <----- Big Bug
+            this.vars.filteredPokemon.push(pokemonData)
 
         } catch (err) {
-            // wirklich nicht gefunden
+            // not found
             this.vars.filteredPokemon = []
         }
     },
@@ -77,7 +73,7 @@ export const pokedexList = {
         if (this.vars.filteredPokemon.length === 0) {
             pokemonListRef.innerHTML = `
             <p class="no-results">
-                Kein Pokémon gefunden
+                404 Pokémon not found
             </p>
             `
             return
@@ -89,6 +85,7 @@ export const pokedexList = {
         }
 
         pokemonListRef.innerHTML = html
+        this.addCardTrigger()
     },       
 
     buildCard() {
@@ -106,24 +103,35 @@ export const pokedexList = {
         }
 
         pokemonListRef.insertAdjacentHTML("beforeend", listHtml)
+        
     },
 
     addEventTrigger(){
-        //PokemonCards Trigger
-        const pokemonIdListRef = document.querySelectorAll<HTMLElement>('*[data-pokemon-id]')
         
-        for (const element of pokemonIdListRef) {
-            element.addEventListener("click", () =>{
-                const cardId =  element.getAttribute("data-pokemon-id")
-                this.loadPokemonDetails(Number(cardId))
-            })
-        }
+        this.addCardTrigger()
+
         //Load More Btn
         const loadBtn = document.querySelector<HTMLButtonElement>('[data-load-more]')
         loadBtn?.addEventListener("click", ()=>{
             console.log("next");
             this.addNextPokemon()
         })
+    },
+    
+    addCardTrigger(){
+        //PokemonCards Trigger
+        const pokemonIdListRef = document.querySelectorAll<HTMLElement>('*[data-pokemon-id]')
+        const overlayRef = document.querySelector('[data-overlay]')
+        
+        for (const element of pokemonIdListRef) {
+            element.addEventListener("click", () =>{
+                const cardId =  element.getAttribute("data-pokemon-id")
+                this.loadPokemonDetails(Number(cardId))
+                overlayRef!.classList.toggle("d-none")
+                
+            })
+        }
+
     },
 
     async addNextPokemon() {
@@ -140,7 +148,7 @@ export const pokedexList = {
         }
         
         this.vars.allPokemon.push(...newPokemon)
-        this.vars.filteredPokemon = this.vars.allPokemon
+        //this.vars.filteredPokemon = this.vars.allPokemon
         this.vars.offset += this.vars.limit
         this.buildCard()
         this.addEventTrigger()
@@ -148,14 +156,25 @@ export const pokedexList = {
     },
 
     loadPokemonDetails(id: number){
-        let selectedPokemon
+        let selectedPokemon: any
         
         for (const pokemon of this.vars.allPokemon) {
             if(pokemon.id == id){                
-                selectedPokemon = pokemon
+                selectedPokemon = pokemon      
+            }else{
+                for (const pokemon of this.vars.filteredPokemon)
+                    if(pokemon.id == id) selectedPokemon = pokemon
             }
-        }
-        console.log(id);
-        console.log(selectedPokemon);
+        }  
+        const pokemonDetailsRef = document.querySelector<HTMLDivElement>('[data-pokemon-details]')
+
+        if(!pokemonDetailsRef) return
+        pokemonDetailsRef.innerHTML = getDetailsTemplate(selectedPokemon)
+
+        const overlayRef = document.querySelector('[data-overlay]')
+        const colseBtnRef = document.querySelector('[data-close-btn]')
+
+        if(!overlayRef && !colseBtnRef) return
+        colseBtnRef?.addEventListener("click", ()=> overlayRef?.classList.toggle("d-none"))
     },
 }

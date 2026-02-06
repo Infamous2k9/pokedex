@@ -1,0 +1,18 @@
+@use "../abstracts/mixins" as *;
+@use "../base/colors" as *;
+@use "../abstracts/functions" as *;
+
+.pokemon{
+    @include flex($flex-direction: column);
+    
+    &__header{
+        @include flex($flex-direction: column);
+        text-align: center;
+    }
+}
+
+.pokemon-close-btn{
+    width: 40px;
+    margin-left: auto;
+    height: 40px;
+}

@@ -6,5 +6,5 @@ export interface Pokemon{
     weight: number,
     height: number,
     speciesURL: string
-    stats: [{}]
+    stats: any
 }

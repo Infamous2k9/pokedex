@@ -5,6 +5,9 @@ body{
 
 }
 
+.d-none{
+    display: none;
+}
 
 .content{
     @include flex($flex-direction: column);
