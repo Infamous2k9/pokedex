@@ -2,9 +2,14 @@ import type { Pokemon } from "../interfaces/pokemon";
 
 export class PokemonModel implements Pokemon {
     private data: any
+    private species: {
+        name: string,
+        url: string
+    }
     
     constructor(data: any){
         this.data = data
+        this.species = this.data.species
     }
     get id(): number{
         return this.data.id
@@ -25,7 +30,7 @@ export class PokemonModel implements Pokemon {
         return this.data.height
     }
     get speciesURL(): string{
-        return this.data.species.url
+        return this.species.url
     }
     get stats(): any{
         return this.data.stats

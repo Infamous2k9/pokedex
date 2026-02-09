@@ -1,9 +1,12 @@
+import { getEvoChainByUrl } from "../api/evo-chain.api"
 import { getNextPokemonData } from "../api/pokedex.api"
 import { getPokemonData, getPokemonDataByName } from "../api/pokemon.api"
+import { getPokemonSpeciesByUrl } from "../api/species.api"
+import { EvolutionChainModel } from "../models/evo-chain.model"
 import { PokemonModel } from "../models/pokemon.model"
+import { SpeciesModel } from "../models/species.model"
 import { getCardTemplate } from "../templates/pokemon-card"
 import { getDetailsTemplate } from "../templates/pokemon-details"
-
 
 export const pokedexList = {
     vars: {
@@ -52,8 +55,8 @@ export const pokedexList = {
             const pokemonData = new PokemonModel(pokemonJson)
 
             // Caching
-            // this.vars.allPokemon.push(pokemonData)
-            // this.vars.allPokemon.sort((a,b) => a.id - b.id)    <----- Big Bug
+            //  this.vars.allPokemon.push(pokemonData)
+            //  this.vars.allPokemon.sort((a,b) => a.id - b.id)   // <----- Big Bug
             this.vars.filteredPokemon.push(pokemonData)
 
         } catch (err) {
@@ -155,9 +158,12 @@ export const pokedexList = {
         this.vars.isLoading = false
     },
 
-    loadPokemonDetails(id: number){
+    async loadPokemonDetails(id: number){
         let selectedPokemon: any
+        let species: any
+        let evoChain: any
         
+        //load Pokemon
         for (const pokemon of this.vars.allPokemon) {
             if(pokemon.id == id){                
                 selectedPokemon = pokemon      
@@ -165,11 +171,30 @@ export const pokedexList = {
                 for (const pokemon of this.vars.filteredPokemon)
                     if(pokemon.id == id) selectedPokemon = pokemon
             }
-        }  
+        }
+
+        
+        //load Species
+        species = new SpeciesModel(await getPokemonSpeciesByUrl(selectedPokemon.speciesURL))
+
+        //load Evo Chain
+        const evoChainJson = await getEvoChainByUrl(species.evoChainUrl)
+
+        // ⬇️ WICHTIG
+        evoChain = new EvolutionChainModel(evoChainJson.chain)
+        const evoNames = this.solveChain(evoChain)
+
+        
+        
+
+        
+        
+
+
         const pokemonDetailsRef = document.querySelector<HTMLDivElement>('[data-pokemon-details]')
 
         if(!pokemonDetailsRef) return
-        pokemonDetailsRef.innerHTML = getDetailsTemplate(selectedPokemon)
+        pokemonDetailsRef.innerHTML = getDetailsTemplate(selectedPokemon, species, evoNames)
 
         const overlayRef = document.querySelector('[data-overlay]')
         const colseBtnRef = document.querySelector('[data-close-btn]')
@@ -177,4 +202,29 @@ export const pokedexList = {
         if(!overlayRef && !colseBtnRef) return
         colseBtnRef?.addEventListener("click", ()=> overlayRef?.classList.toggle("d-none"))
     },
+
+    async loadFlavorText(url: string){
+        
+        let dataJson = await getPokemonSpeciesByUrl(url)
+        
+        return await dataJson.flavor_text_entries[0].flavor_text
+    },
+
+    solveChain(chain: EvolutionChainModel) {
+  const result: string[] = []
+
+  const traverse = (node: EvolutionChainModel) => {
+    result.push(node.name)
+
+    for (const next of node.evolvesTo) {
+      traverse(next)
+    }
+  }
+
+  traverse(chain)
+
+  console.log("Evolution Chain:", result)
+  return result
+}
+
 }
