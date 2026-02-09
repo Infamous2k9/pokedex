@@ -39,3 +39,18 @@
     }
   }
 }
+@mixin pokemon-border-classes($types) {
+  @each $name, $color in $types {
+    .border-color--#{$name} {
+      border: solid 5px $color;
+    }
+  }
+}
+
+@mixin pokemon-bg-shadow-classes($types) {
+  @each $name, $color in $types {
+    .bg-shadow-#{$name} {
+      filter: drop-shadow(0 10px 50px $color);
+    }
+  }
+}

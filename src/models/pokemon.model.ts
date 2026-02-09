@@ -18,7 +18,7 @@ export class PokemonModel implements Pokemon {
         return this.data.name
     }
     get img(): string{
-        return this.data.sprites.other.dream_world.front_default
+        return this.data.sprites.other['official-artwork'].front_default
     }
     get types(): string[]{
         return this.data.types.map((t: any) => t.type.name)

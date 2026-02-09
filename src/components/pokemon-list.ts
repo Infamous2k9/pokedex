@@ -1,6 +1,6 @@
 import { getEvoChainByUrl } from "../api/evo-chain.api"
 import { getNextPokemonData } from "../api/pokedex.api"
-import { getPokemonData, getPokemonDataByName } from "../api/pokemon.api"
+import { getPokemonData, getPokemonDataById, getPokemonDataByName } from "../api/pokemon.api"
 import { getPokemonSpeciesByUrl } from "../api/species.api"
 import { EvolutionChainModel } from "../models/evo-chain.model"
 import { PokemonModel } from "../models/pokemon.model"
@@ -8,18 +8,30 @@ import { SpeciesModel } from "../models/species.model"
 import { getCardTemplate } from "../templates/pokemon-card"
 import { getDetailsTemplate } from "../templates/pokemon-details"
 
+const loadingRef = document.querySelector("[data-loading]")
+
 export const pokedexList = {
     vars: {
-        offset : 0,
-        limit : 20,
-        isLoading : false,
+        offset: 0,
+        limit: 20,
+        isLoading: false,
         allPokemon: [] as PokemonModel[],
-        filteredPokemon: [] as PokemonModel[]
+        filteredPokemon: [] as PokemonModel[],
+        maxPokemon: 10325
     },
     
     init(){
         this.addSearchListener()
         this.addNextPokemon()
+    },
+    showLoading() {
+        if(!loadingRef) return
+        loadingRef.classList.remove("d-none")
+    },
+    hideLoading() {
+        if(!loadingRef) return
+        setTimeout(()=>loadingRef.classList.add("d-none"),800)
+        
     },
 
      addSearchListener() {
@@ -46,9 +58,10 @@ export const pokedexList = {
 
     async searchPokemonFromApi(name: string) {
         // Cache?
+
         const exists = this.vars.allPokemon.some(p => p.name === name)
         if (exists) return
-
+        this.showLoading
         try {
             const pokemonJson = await getPokemonDataByName(name)
 
@@ -63,6 +76,7 @@ export const pokedexList = {
             // not found
             this.vars.filteredPokemon = []
         }
+        this.hideLoading()
     },
 
 
@@ -116,7 +130,7 @@ export const pokedexList = {
         //Load More Btn
         const loadBtn = document.querySelector<HTMLButtonElement>('[data-load-more]')
         loadBtn?.addEventListener("click", ()=>{
-            console.log("next");
+            ("next");
             this.addNextPokemon()
         })
     },
@@ -138,11 +152,12 @@ export const pokedexList = {
     },
 
     async addNextPokemon() {
+        this.showLoading()
         if (this.vars.isLoading) return
         this.vars.isLoading = true
         //fetch all pokemon as json
         let pokemonsfetchData = await getNextPokemonData(this.vars.offset, this.vars.limit)
-
+        
         //convert json to pokemon model
         const newPokemon:PokemonModel[] = []
         for (const element of pokemonsfetchData.results) {
@@ -156,9 +171,11 @@ export const pokedexList = {
         this.buildCard()
         this.addEventTrigger()
         this.vars.isLoading = false
+        this.hideLoading()
     },
 
     async loadPokemonDetails(id: number){
+        this.showLoading()
         let selectedPokemon: any
         let species: any
         let evoChain: any
@@ -172,7 +189,10 @@ export const pokedexList = {
                     if(pokemon.id == id) selectedPokemon = pokemon
             }
         }
-
+        //fetch if not in cache
+        if(!selectedPokemon){
+           selectedPokemon = new PokemonModel(await getPokemonDataById(id))
+        }
         
         //load Species
         species = new SpeciesModel(await getPokemonSpeciesByUrl(selectedPokemon.speciesURL))
@@ -180,17 +200,15 @@ export const pokedexList = {
         //load Evo Chain
         const evoChainJson = await getEvoChainByUrl(species.evoChainUrl)
 
-        // ⬇️ WICHTIG
         evoChain = new EvolutionChainModel(evoChainJson.chain)
         const evoNames = this.solveChain(evoChain)
 
-        
-        
+        this.hideLoading()
+        this.buildDetails(selectedPokemon,species,evoNames)
+        this.addDetailsTrigger()
+    },
 
-        
-        
-
-
+    buildDetails(selectedPokemon: any, species: any, evoNames: any){
         const pokemonDetailsRef = document.querySelector<HTMLDivElement>('[data-pokemon-details]')
 
         if(!pokemonDetailsRef) return
@@ -203,6 +221,38 @@ export const pokedexList = {
         colseBtnRef?.addEventListener("click", ()=> overlayRef?.classList.toggle("d-none"))
     },
 
+    addDetailsTrigger(){
+        const prevBtn = document.querySelector<HTMLButtonElement>('[data-prev-pokemon]')
+        const nextBtn = document.querySelector<HTMLButtonElement>('[data-next-pokemon]')
+
+        //prevCardBtn
+        if(!prevBtn) return
+
+        prevBtn.addEventListener('click', 
+            ()=>this.loadPrevPokemon(Number(prevBtn.getAttribute('data-prev-pokemon'))))
+
+        //nextCardBtn
+        if(!nextBtn) return
+        
+        nextBtn.addEventListener('click', 
+            ()=>this.loadNextPokemon(Number(nextBtn.getAttribute('data-next-pokemon'))))
+    },
+
+    loadNextPokemon(id: number){
+        if(id > this.vars.maxPokemon){
+            this.loadPokemonDetails(1)
+        }else{
+            this.loadPokemonDetails(id)
+        }
+    },
+    loadPrevPokemon(id: number){
+        if(id < 1){
+            this.loadPokemonDetails(this.vars.maxPokemon)
+        }else{
+            this.loadPokemonDetails(id)
+        }
+    },
+
     async loadFlavorText(url: string){
         
         let dataJson = await getPokemonSpeciesByUrl(url)
@@ -211,20 +261,19 @@ export const pokedexList = {
     },
 
     solveChain(chain: EvolutionChainModel) {
-  const result: string[] = []
+        const result: string[] = []
 
-  const traverse = (node: EvolutionChainModel) => {
-    result.push(node.name)
+        const traverse = (node: EvolutionChainModel) => {
+            result.push(node.name)
 
-    for (const next of node.evolvesTo) {
-      traverse(next)
+            for (const next of node.evolvesTo) {
+            traverse(next)
+            }
+        }
+
+        traverse(chain)
+
+        console.log("Evolution Chain:", result)
+        return result
     }
-  }
-
-  traverse(chain)
-
-  console.log("Evolution Chain:", result)
-  return result
-}
-
 }

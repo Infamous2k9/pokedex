@@ -8,9 +8,11 @@ export function getDetailsTemplate(pokemon: PokemonModel, species: SpeciesModel,
     for (const stat of pokemon.stats) {
         statsHTML += `
                     <ul class="stat">
-                        <li>${stat.stat.name}</li>
-                        <li>${stat.base_stat}</li>
-                        <li>Bar</li>
+                        <li class="stat-name">${stat.stat.name}</li>
+                        <li class="stat-value">${stat.base_stat}</li>
+                        <li class="stat-bar">
+                            <span style="--stat: ${stat.base_stat}"></span>
+                        </li>
                     </ul>`
     }
     for (const chain of evoChain) {
@@ -19,9 +21,14 @@ export function getDetailsTemplate(pokemon: PokemonModel, species: SpeciesModel,
     
 
     return`
+        <div class="pokemon border-color--${mainType}">
         <div class="pokemon__header">
             <button class="pokemon-close-btn" data-close-btn>X</button>
-            <img class="type-${mainType}" src="${pokemon.img}" alt="pokemon img">
+            <div class="image-wrapper">
+            <button data-prev-pokemon="${pokemon.id-1}"><</button>
+            <img class="bg-shadow-${mainType}" src="${pokemon.img}" alt="pokemon img">
+            <button data-next-pokemon="${pokemon.id+1}">></button>
+            </div>
             <h3>${pokemon.name}</h3>
         </div>
         <div class="pokemon__details">
@@ -29,9 +36,10 @@ export function getDetailsTemplate(pokemon: PokemonModel, species: SpeciesModel,
             <div class="pokemon__stats">
                 ${statsHTML}
             </div>
-            <div class="pokemon__evolution-chain">
+            <div class="pokemon__evolution-chain d-none">
               ${evoChainHtml}
             </div>
+        </div>
         </div>
     `
 }

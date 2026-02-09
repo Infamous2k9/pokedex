@@ -2,17 +2,198 @@
 @use "../base/colors" as *;
 @use "../abstracts/functions" as *;
 
-.pokemon{
-    @include flex($flex-direction: column);
-    
-    &__header{
-        @include flex($flex-direction: column);
-        text-align: center;
-    }
+
+.pokemon-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.d-none {
+    display: none;
+  }
 }
 
-.pokemon-close-btn{
-    width: 40px;
-    margin-left: auto;
-    height: 40px;
+.pokemon-wrapper {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90dvh;
+  padding: 16px;
+}
+
+.pokemon {
+  background: $dark-100;
+  border-radius: 20px;
+  overflow: hidden;
+  color: white;
+
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+
+    &__header{
+        position: relative;
+        padding: 40px 16px 16px;
+        text-align: center;
+
+        img {
+            width: 140px;
+            height: auto;
+            margin: 32px auto;
+            display: block;
+        }
+
+        h3 {
+            margin: 0;
+            font-size: 2.0rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+    }
+    &__details{
+        padding: 16px;
+        overflow-y: auto;
+        max-height: 60dvh;
+
+        p {
+            font-size: .9rem;
+            line-height: 1.4;
+            opacity: 0.85;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+    }
+    &__stats {
+        display: grid;
+        gap: 10px;
+        color: currentColor;
+
+        .stat {
+            display: grid;
+            grid-template-columns: 1fr 40px 1fr;
+            align-items: center;
+            gap: 8px;
+            text-transform: capitalize;
+
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            }
+            .stat-bar {
+                position: relative;
+                height: 8px;
+                border-radius: 6px;
+                overflow: hidden;
+                background: rgba(255, 255, 255, 0.15);
+                
+
+                span {
+                    display: block;
+                    height: 100%;
+                    width: 0;
+
+                    background: linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.4),
+                    currentColor
+                    );
+
+                    border-radius: 6px;
+                    animation: stat-fill 0.8s ease forwards;
+                }
+                @keyframes stat-fill {
+                    from {
+                        width: 0;
+                    }
+                    to {
+                        width: calc(var(--stat) * 1%);
+                    }
+                }
+
+        }
+            
+
+    }
+    &__evolution-chain {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+
+        margin-top: 8px;
+        font-size: 0.85rem;
+        text-transform: capitalize;
+
+        span {
+            padding: 6px 10px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
+}
+.pokemon-overlay:not(.d-none) .stat-bar span {
+  animation: stat-fill 0.8s ease forwards;
+}
+@include pokemon-border-classes($types);
+@include pokemon-bg-shadow-classes($types);
+@media (max-width: 480px) {
+  .pokemon-wrapper {
+    padding: 8px;
+  }
+
+  .pokemon__header img {
+    width: 120px;
+  }
+}
+
+.pokemon-overlay {
+  animation: overlay-fade 0.25s ease;
+}
+
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pokemon__header {
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.15),
+    transparent
+  );
+}
+.pokemon-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+
+  background: $red-500;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+
+  transition: background 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    background: $red-600;
+    transform: scale(1.1);
+  }
+}
+
+.image-wrapper{
+    width: 100%;
+    @include flex($justify-content: space-around);
 }
