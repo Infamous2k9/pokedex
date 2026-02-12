@@ -1,6 +1,6 @@
 import type { EvolutionChain } from "../interfaces/evo-chain";
 
-export class EvolutionChainModel {
+export class EvolutionChainModel implements EvolutionChain {
   name: string
   evolvesTo: EvolutionChainModel[]
 

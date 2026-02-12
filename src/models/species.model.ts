@@ -9,7 +9,13 @@ export class SpeciesModel implements Species {
     }
 
     get flavorText(): string{
-        return this.speciesData.flavor_text_entries[0].flavor_text.replace(/\n/g, " ")
+        const flavorTextEntries = this.speciesData.flavor_text_entries
+        let flavorTextEn = ""
+        for (const element of flavorTextEntries) {
+            if(element.language.name === "en") 
+                flavorTextEn = element.flavor_text.replace(/\n/g, " ")
+        }
+        return flavorTextEn
     }
     get evoChainUrl(): string{
         return this.speciesData.evolution_chain.url

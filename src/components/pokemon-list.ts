@@ -17,7 +17,7 @@ export const pokedexList = {
         isLoading: false,
         allPokemon: [] as PokemonModel[],
         filteredPokemon: [] as PokemonModel[],
-        maxPokemon: 10325
+        maxPokemon: 1025
     },
     
     init(){
@@ -58,27 +58,19 @@ export const pokedexList = {
 
     async searchPokemonFromApi(name: string) {
         // Cache?
-
         const exists = this.vars.allPokemon.some(p => p.name === name)
         if (exists) return
         this.showLoading
         try {
             const pokemonJson = await getPokemonDataByName(name)
-
             const pokemonData = new PokemonModel(pokemonJson)
-
-            // Caching
-            //  this.vars.allPokemon.push(pokemonData)
-            //  this.vars.allPokemon.sort((a,b) => a.id - b.id)   // <----- Big Bug
             this.vars.filteredPokemon.push(pokemonData)
-
         } catch (err) {
             // not found
             this.vars.filteredPokemon = []
         }
         this.hideLoading()
     },
-
 
     renderFiltered() {
         const pokemonListRef = document.querySelector<HTMLDivElement>('[data-pokemon-list]')
@@ -166,7 +158,6 @@ export const pokedexList = {
         }
         
         this.vars.allPokemon.push(...newPokemon)
-        //this.vars.filteredPokemon = this.vars.allPokemon
         this.vars.offset += this.vars.limit
         this.buildCard()
         this.addEventTrigger()
@@ -177,9 +168,6 @@ export const pokedexList = {
     async loadPokemonDetails(id: number){
         this.showLoading()
         let selectedPokemon: any
-        let species: any
-        let evoChain: any
-        
         //load Pokemon
         for (const pokemon of this.vars.allPokemon) {
             if(pokemon.id == id){                
@@ -189,23 +177,33 @@ export const pokedexList = {
                     if(pokemon.id == id) selectedPokemon = pokemon
             }
         }
-        //fetch if not in cache
         if(!selectedPokemon){
            selectedPokemon = new PokemonModel(await getPokemonDataById(id))
         }
-        
-        //load Species
-        species = new SpeciesModel(await getPokemonSpeciesByUrl(selectedPokemon.speciesURL))
-
-        //load Evo Chain
-        const evoChainJson = await getEvoChainByUrl(species.evoChainUrl)
-
-        evoChain = new EvolutionChainModel(evoChainJson.chain)
-        const evoNames = this.solveChain(evoChain)
+        const species = await this.loadSpecices(selectedPokemon)
+        const evoNames = await this.loadChain(species)
 
         this.hideLoading()
         this.buildDetails(selectedPokemon,species,evoNames)
         this.addDetailsTrigger()
+    },
+
+    async loadSpecices(pokemon: PokemonModel){
+        let species: SpeciesModel
+
+        species = new SpeciesModel(await getPokemonSpeciesByUrl(pokemon.speciesURL))
+
+        return species
+    },
+    
+    async loadChain(species: SpeciesModel){
+        let evoChain: EvolutionChainModel
+
+        const evoChainJson = await getEvoChainByUrl(species.evoChainUrl)
+        evoChain = new EvolutionChainModel(evoChainJson.chain)
+        const evoNames = this.solveChain(evoChain)
+
+        return evoNames
     },
 
     buildDetails(selectedPokemon: any, species: any, evoNames: any){

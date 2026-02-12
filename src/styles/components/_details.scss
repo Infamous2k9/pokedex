@@ -54,6 +54,7 @@
             text-transform: capitalize;
         }
     }
+    
     &__details{
         padding: 16px;
         overflow-y: auto;
@@ -195,5 +196,20 @@
 
 .image-wrapper{
     width: 100%;
-    @include flex($justify-content: space-around);
+    @include flex($justify-content: space-around, $align-items: center);
+    & > button{
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: $dark-700;
+      cursor: pointer;
+
+      &:hover{
+        transform: scale(1.1);
+        color: $dark-900;
+      }
+    }
+
+    & > button {
+      height: 50px;
+    }
 }
